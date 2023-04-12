@@ -31,6 +31,8 @@ doc = nlp(article['body'])
 dir(doc)
 
 print(doc[5])
+
+
 dir(doc[5])
 
 displacy.render(doc, style="ent", jupyter=True)
