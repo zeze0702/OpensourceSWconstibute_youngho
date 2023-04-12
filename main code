@@ -1,0 +1,96 @@
+!pip install --upgrade spacy
+!pip install --upgrade spacy[cuda111,transformers]
+!pip install jsonlines
+!python -m spacy download en_core_web_lg
+!python -m spacy download en_core_web_sm
+
+!wget https://andrewhalterman.com/files/cleaned_masdar.jsonl
+import jsonlines
+
+from tqdm.autonotebook import tqdm
+import jsonlines
+import re
+
+import spacy
+from spacy import displacy
+assert spacy.__version__ == "3.1.3"
+
+nlp = spacy.load("en_core_web_lg")
+nlp_sm = spacy.load("en_core_web_sm")
+
+with jsonlines.open("cleaned_masdar.jsonl", "r") as f:
+    articles = list(f.iter())
+
+print(len(articles))
+
+article = articles[313]
+article
+
+doc = nlp(article['body'])
+
+dir(doc)
+
+print(doc[5])
+dir(doc[5])
+
+displacy.render(doc, style="ent", jupyter=True)
+
+spacy.explain("GPE")
+
+just_text = [i['body'] for i in articles]
+docs = list(tqdm(nlp.pipe(just_text), total=len(just_text)))
+
+[(i.text, i.ent_iob_ + "-" + i.ent_type_) for i in doc[0:30]]
+
+from collections import Counter
+
+all_orgs = []
+for d in docs:
+    orgs = [ent.text for ent in d.ents if ent.label_ == "ORG"]
+    all_orgs.extend(orgs)
+
+Counter(all_orgs).most_common(15)
+
+#title 저장 
+negotiation_orgs = []
+for d in docs:
+    for ent in d.ents:
+        if ent.label_ != "ORG":
+            continue
+        if re.search("negotiat|ceasefire|talks", ent.sent.text):
+            negotiation_orgs.append(ent.text)
+            
+doc = nlp(articles[313]['body'])
+sent = list(doc.sents)[1]
+displacy.render(sent, style="dep", jupyter=True)
+
+print(doc)
+tok = doc[21]  # "Aleppo"
+print(tok)
+
+
+def loc_to_verb(tok):
+    verb_phrase = []
+    # first, iterate through all the ancesters of the token
+    for i in tok.ancestors:
+        # when you get to a verb (using a POS tag)...
+        if i.pos_ == "VERB":
+            # ...add the verb to the verb phrase list
+            verb_phrase.append(i)
+            # then, also add the direct object(s) of the verb, as long as the original token
+            # is in the same subtree as the direct object
+            verb_phrase.extend([j for j in i.children if j.dep_ == "dobj" and tok in i.subtree])
+            # we only want the first verb, so stop after we find one
+            break
+    # expand out the verb phrase to get modifiers ("amod") of the direct object
+    for i in verb_phrase:
+        for j in i.children:
+            if j.dep_ == "amod":
+                verb_phrase.append(j)
+
+    # sort the tokens by their position in the original sentence
+    new_list = sorted(verb_phrase, key=lambda x: x.i)
+    # join them together with the correct whitespace and return
+    return ''.join([i.text_with_ws for i in new_list]).strip()
+
+loc_to_verb(tok)
