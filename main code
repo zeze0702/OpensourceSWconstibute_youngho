@@ -96,3 +96,6 @@ def loc_to_verb(tok):
     return ''.join([i.text_with_ws for i in new_list]).strip()
 
 loc_to_verb(tok)
+
+
+
