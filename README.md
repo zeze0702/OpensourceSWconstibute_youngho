@@ -1,5 +1,5 @@
 #
-#Automatic report generation by extracting document information
+Automatic report generation by extracting document information
 Measure similarity of documents
 
 The above project provides.
@@ -12,7 +12,7 @@ The above project provides.
 
 ###########################################################################################
 
-#문서 정보 추출을 통한 자동보고서 생성
+문서 정보 추출을 통한 자동보고서 생성
 
 문서의 유사도 측정
 
