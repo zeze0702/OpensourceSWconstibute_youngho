@@ -10,7 +10,9 @@ The above project provides.
 
 3. Provides fast and accurate report generation services without complexity with a more practical UI.
 
-######################################################################################################
+###########################################################################################
+
+#
 문서 정보 추출을 통한 자동보고서 생성
 
 문서의 유사도 측정
