@@ -1,0 +1,63 @@
+from xml.etree.ElementTree import Element, SubElement, ElementTree
+
+
+root = Element("Countries")
+element1 = Element("Korea")
+root.append(element1)
+
+sub_element1 = SubElement(element1, "City")
+sub_element1.text = "Seoul"
+
+element2 = Element("Japanese")
+root.append(element2)
+
+sub_element2 = SubElement(element2, "City")
+sub_element2.text = "Tokyo"
+
+tree = ElementTree(root)
+
+fileName = "example.xml"
+with open(fileName, "wb") as file:
+    tree.write(file, encoding='utf-8', xml_declaration=True)
+    
+root = Element("Countries")
+element1 = Element("Korea")
+root.append(element1)
+
+sub_element1 = SubElement(element1, "City")
+sub_element1.text = "Seoul"
+sub_element1.set("attr1", "value1")
+sub_element1.set("attr2", "value2")
+
+element2 = Element("Japanese")
+root.append(element2)
+
+sub_element2 = SubElement(element2, "City")
+sub_element2.text = "Tokyo"
+sub_element2.set("attr1", "value1")
+sub_element2.set("attr2", "value2")
+
+tree = ElementTree(root)
+
+fileName = "example.xml"
+with open(fileName, "wb") as file:
+    tree.write(file, encoding='utf-8', xml_declaration=True)  
+
+def _pretty_print(current, parent=None, index=-1, depth=0):
+    for i, node in enumerate(current):
+        _pretty_print(node, current, i, depth + 1)
+    if parent is not None:
+        if index == 0:
+            parent.text = '\n' + ('\t' * depth)
+        else:
+            parent[index - 1].tail = '\n' + ('\t' * depth)
+        if index == len(parent) - 1:
+            current.tail = '\n' + ('\t' * (depth - 1))
+
+
+filePath = "./example.xml"
+tree = ET.parse(filePath)
+
+_pretty_print(tree.getroot())
+
+ET.dump(tree)
